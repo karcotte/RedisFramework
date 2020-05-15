@@ -166,6 +166,30 @@ namespace RedisConnectionSamples
         }
 
         /// <summary>
+        /// This method retrieves all of the values in the DataDocument stored in the <paramref name="field"/> field.
+        /// </summary>
+        /// <param name="field"> is the field to retrieves the values from.</param>
+        /// <returns>The values stored at the field or an empty IEnumerable if the field doesn't exist.</returns>
+        public IEnumerable<object> GetValues(string field)
+        {
+            if (!dataMap.ContainsKey(field))
+            {
+                return new List<object>();
+            }
+            object currentValue = dataMap[field];
+            if (currentValue is IEnumerable<object>)
+            {
+                return ((IEnumerable<object>)currentValue);
+            }
+            else
+            {
+                List<object> result = new List<object>();
+                result.Add(currentValue);
+                return result;
+            }
+        }
+
+        /// <summary>
         /// This method returns a string representation of the DataDocument. Is a UTF-8 encoded JSON string representation of the backing Dictionary.
         /// </summary>
         /// <returns>The string representation of DataDocument.</returns>

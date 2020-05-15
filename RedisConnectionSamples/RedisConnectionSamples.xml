@@ -116,6 +116,13 @@
             <param name="defaultValue"> is the default value to return when the document does not contain a value at <paramref name="field"/>.</param>
             <returns>The string representation of the first value stored at the field in the DataDocument or <paramref name="defaultValue"/> if the field doesn't exist.</returns>
         </member>
+        <member name="M:RedisConnectionSamples.DataDocument.GetValues(System.String)">
+            <summary>
+            This method retrieves all of the values in the DataDocument stored in the <paramref name="field"/> field.
+            </summary>
+            <param name="field"> is the field to retrieves the values from.</param>
+            <returns>The values stored at the field or an empty IEnumerable if the field doesn't exist.</returns>
+        </member>
         <member name="M:RedisConnectionSamples.DataDocument.ToString">
             <summary>
             This method returns a string representation of the DataDocument. Is a UTF-8 encoded JSON string representation of the backing Dictionary.
