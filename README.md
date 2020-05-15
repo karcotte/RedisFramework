@@ -4,13 +4,13 @@ This framework uses the StackExchange.Redis library to implement basic redis use
 
 The framework handles:
 - Creating arbitrary documents and persisting them in Redis
-- Retrieving documents by key
+- Retrieving a document by its key
 - Retrieving documents by arbitrary patterns defined by a schema
 - Deleting documents by key
 - A pessimistic locking mechanism that allows applications to acquire, extend, and release locks based on a redis key.
+- A configurable retry mechanism for operations that interact with Redis
 
-All of the persistence used cases are implemented with a asynchronous method calls, taking advantage of StackExchange.Redis's MultiPlexer to provide a 
-continuation based interface.
+All of the persistence used cases are implemented with a asynchronous method calls, taking advantage of StackExchange.Redis's MultiPlexer and ability to pipeline requests to provide a continuation based interface.
 
 ## Examples
 

@@ -17,7 +17,7 @@ namespace RedisConnectionSamples
 
         /// <summary>
         /// This method saves a single DataDocument to Redis at a <c>Location</c> within a particular schema. The Redis Key where the document
-        /// is saved is determined as <code>schemaId:location</code>.
+        /// is saved is determined as <code>schemaId:location</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
         /// 
         /// Best practice is for all locations used within a "schemaId" to follow the same pattern.
         /// </summary>
@@ -39,7 +39,7 @@ namespace RedisConnectionSamples
 
         /// <summary>
         /// This method saves multiple DataDocuments to Redis at their corresponding <c>Location</c> within a particular schema. The Redis Key where the document[i]
-        /// is saved is determined as <code>schemaId:location[i]</code>.
+        /// is saved is determined as <code>schemaId:location[i]</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
         /// 
         /// Best practice is for all locations used wihin a "schemaId" to follow the same pattern.
         /// </summary>
