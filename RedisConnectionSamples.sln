@@ -5,7 +5,12 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisConnectionSamples", "RedisConnectionSamples\RedisConnectionSamples.csproj", "{D141B080-7393-4B1D-80CF-36A4014EABCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisTests", "RedisTests\RedisTests.csproj", "{40FA3416-4A40-4BD0-9679-26566915A40B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisTests", "RedisTests\RedisTests.csproj", "{40FA3416-4A40-4BD0-9679-26566915A40B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4B53DB7F-B19D-4C39-8C04-93DB2089BE91}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
