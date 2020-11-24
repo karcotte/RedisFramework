@@ -21,8 +21,9 @@ namespace RedisConnectionSamples
                 {
                     _Factory = LoggerFactory.Create(builder =>
                     {                        
-                        builder.AddConsole();                        
-                        builder.AddEventLog();
+                        builder.AddConsole();      
+                        //event log is not available from docker images
+                        //builder.AddEventLog();
                     });
                 }
                 return _Factory;

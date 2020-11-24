@@ -199,6 +199,64 @@
             Property <c>Connection</c> is a lazy initialized singleton StackExchange.Redis ConnectionMultiplexer used by the framework to communicate with a Redis database.
             </summary>
         </member>
+        <member name="M:RedisConnectionSamples.RedisHashPersistenceLayer.Put(System.String,RedisConnectionSamples.Location,RedisConnectionSamples.DataDocument,System.Nullable{System.TimeSpan})">
+            <summary>
+            This method saves a single DataDocument to Redis at a <c>Location</c> within a particular schema. The Redis Key where the document
+            is saved is determined as <code>schemaId:location</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
+            
+            Best practice is for all locations used within a "schemaId" to follow the same pattern.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document will be stored.</param>
+            <param name="location">The location within the schema where the document will be stored.</param>
+            <param name="doc">The <c>DataDocument</c> to persist in Redis.</param>
+            <param name="expiration">The TTL for the key -> document pair. Defaults to null, indicating that there will not be a TTL.</param>
+            <returns>A Task to track the asynchronous operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisHashPersistenceLayer.Get(System.String,RedisConnectionSamples.Location)">
+            <summary>
+            This method retrieves a document from Redis.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document is stored.</param>
+            <param name="location">The location within the schema where the document is stored.</param>
+            <returns>A Task to track the asynchronous retrieval operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisHashPersistenceLayer.Get(System.String,RedisConnectionSamples.Location,System.String[])">
+            <summary>
+            This method retrieves a document from Redis.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document is stored.</param>
+            <param name="location">The location within the schema where the document is stored.</param>
+            <returns>A Task to track the asynchronous retrieval operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisHashPersistenceLayer.PutSync(System.String,RedisConnectionSamples.Location,RedisConnectionSamples.DataDocument,System.Nullable{System.TimeSpan})">
+            <summary>
+            This method saves a single DataDocument to Redis at a <c>Location</c> within a particular schema. The Redis Key where the document
+            is saved is determined as <code>schemaId:location</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
+            
+            Best practice is for all locations used within a "schemaId" to follow the same pattern.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document will be stored.</param>
+            <param name="location">The location within the schema where the document will be stored.</param>
+            <param name="doc">The <c>DataDocument</c> to persist in Redis.</param>
+            <param name="expiration">The TTL for the key -> document pair. Defaults to null, indicating that there will not be a TTL.</param>
+            <returns>A Task to track the asynchronous operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisHashPersistenceLayer.GetSync(System.String,RedisConnectionSamples.Location)">
+            <summary>
+            This method retrieves a document from Redis.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document is stored.</param>
+            <param name="location">The location within the schema where the document is stored.</param>
+            <returns>A Task to track the asynchronous retrieval operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisHashPersistenceLayer.GetSync(System.String,RedisConnectionSamples.Location,System.String[])">
+            <summary>
+            This method retrieves a document from Redis.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document is stored.</param>
+            <param name="location">The location within the schema where the document is stored.</param>
+            <returns>A Task to track the asynchronous retrieval operation.</returns>
+        </member>
         <member name="T:RedisConnectionSamples.RedisPersistenceLayer">
             <summary>
             Class <c>RedisPersistenceLayer</c> provides an API for persisting DataDocuments in Redis.
@@ -217,7 +275,21 @@
             <param name="expiration">The TTL for the key -> document pair. Defaults to null, indicating that there will not be a TTL.</param>
             <returns>A Task to track the asynchronous operation.</returns>
         </member>
-        <member name="M:RedisConnectionSamples.RedisPersistenceLayer.Put(System.String,System.Collections.Generic.KeyValuePair{RedisConnectionSamples.Location,RedisConnectionSamples.DataDocument}[],System.Nullable{System.TimeSpan})">
+        <member name="M:RedisConnectionSamples.RedisPersistenceLayer.PutSync(System.String,RedisConnectionSamples.Location,RedisConnectionSamples.DataDocument,System.Nullable{System.TimeSpan})">
+            <summary>
+            This method saves a single DataDocument to Redis at a <c>Location</c> within a particular schema. The Redis Key where the document
+            is saved is determined as <code>schemaId:location</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
+            
+            This is a blocking implementation, for non-blocking callers use "Put".
+            
+            Best practice is for all locations used within a "schemaId" to follow the same pattern.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document will be stored.</param>
+            <param name="location">The location within the schema where the document will be stored.</param>
+            <param name="doc">The <c>DataDocument</c> to persist in Redis.</param>
+            <param name="expiration">The TTL for the key -> document pair. Defaults to null, indicating that there will not be a TTL.</param>        
+        </member>
+        <member name="M:RedisConnectionSamples.RedisPersistenceLayer.Put(System.String,System.Collections.Generic.KeyValuePair{RedisConnectionSamples.Location,RedisConnectionSamples.DataDocument}[])">
             <summary>
             This method saves multiple DataDocuments to Redis at their corresponding <c>Location</c> within a particular schema. The Redis Key where the document[i]
             is saved is determined as <code>schemaId:location[i]</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
@@ -225,13 +297,35 @@
             Best practice is for all locations used wihin a "schemaId" to follow the same pattern.
             </summary>
             <param name="schemaId">The id representing the schema where the document will be stored.</param>
-            <param name="pairs">An array of location -> document pairs to be stored within the schema.</param>
-            <param name="expiration">The TTL for the key -> document pairs. Defaults to null, indicating that there will not be a TTL.</param>
+            <param name="pairs">An array of location -> document pairs to be stored within the schema.</param>        
+            <returns>A Task to track the asynchronous operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisPersistenceLayer.PutSync(System.String,System.Collections.Generic.KeyValuePair{RedisConnectionSamples.Location,RedisConnectionSamples.DataDocument}[])">
+            <summary>
+            This method saves multiple DataDocuments to Redis at their corresponding <c>Location</c> within a particular schema. The Redis Key where the document[i]
+            is saved is determined as <code>schemaId:location[i]</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
+            
+            This is a blocking implementaiton, for non-blocking callers use "Put".
+            
+            Best practice is for all locations used wihin a "schemaId" to follow the same pattern.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document will be stored.</param>
+            <param name="pairs">An array of location -> document pairs to be stored within the schema.</param>        
             <returns>A Task to track the asynchronous operation.</returns>
         </member>
         <member name="M:RedisConnectionSamples.RedisPersistenceLayer.Get(System.String,RedisConnectionSamples.Location)">
             <summary>
             This method retrieves a document from Redis.
+            </summary>
+            <param name="schemaId">The id representing the schema where the document is stored.</param>
+            <param name="location">The location within the schema where the document is stored.</param>
+            <returns>A Task to track the asynchronous retrieval operation.</returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RedisPersistenceLayer.GetSync(System.String,RedisConnectionSamples.Location)">
+            <summary>
+            This method retrieves a document from Redis.
+            
+            This is a blocking implementation, for non-blocking use Get.
             </summary>
             <param name="schemaId">The id representing the schema where the document is stored.</param>
             <param name="location">The location within the schema where the document is stored.</param>
@@ -293,6 +387,18 @@
             This implementation only retries for certain exceptions. When the underlying operation throws a 
             <c>RedisException</c>, or <c>SocketException</c> the operation will be tried again. Any other error 
             will be rethrown without additional attempts.
+            </summary>
+            <param name="times">The number of attempts allowed.</param>
+            <param name="operation">The operation to retry.</param>
+            <returns></returns>
+        </member>
+        <member name="M:RedisConnectionSamples.RetryHelper.RetryOnException(System.Int32,System.Action)">
+            <summary>
+            This method retries an operation until it is successful or until the number of attempts is exceeded. 
+            This implementation only retries for certain exceptions. When the underlying operation throws a 
+            <c>RedisException</c>, or <c>SocketException</c> the operation will be tried again. Any other error 
+            will be rethrown without additional attempts. This is a synchronous / blocking implementation, for non-blocking
+            calls use RetryOnExceptionAsync.
             </summary>
             <param name="times">The number of attempts allowed.</param>
             <param name="operation">The operation to retry.</param>

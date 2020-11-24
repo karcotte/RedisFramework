@@ -32,7 +32,30 @@ namespace RedisConnectionSamples
             await RetryHelper.RetryOnExceptionAsync(3, async () =>
             {
                 var db = RedisConnection.Connection.GetDatabase();
-                await db.StringSetAsync(key, doc.ToRedisValue(), expiration);
+                await db.StringSetAsync(key, doc.ToRedisValue(), expiration);               
+                logger.LogDebug("SET {key} {value}.", key, doc);
+            });
+        }
+
+        /// <summary>
+        /// This method saves a single DataDocument to Redis at a <c>Location</c> within a particular schema. The Redis Key where the document
+        /// is saved is determined as <code>schemaId:location</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
+        /// 
+        /// This is a blocking implementation, for non-blocking callers use "Put".
+        /// 
+        /// Best practice is for all locations used within a "schemaId" to follow the same pattern.
+        /// </summary>
+        /// <param name="schemaId">The id representing the schema where the document will be stored.</param>
+        /// <param name="location">The location within the schema where the document will be stored.</param>
+        /// <param name="doc">The <c>DataDocument</c> to persist in Redis.</param>
+        /// <param name="expiration">The TTL for the key -> document pair. Defaults to null, indicating that there will not be a TTL.</param>        
+        public void PutSync(string schemaId, Location location, DataDocument doc, TimeSpan? expiration = null)
+        {
+            string key = schemaId + ":" + location;
+            RetryHelper.RetryOnException(3, () =>
+            {
+                var db = RedisConnection.Connection.GetDatabase();
+                db.StringSet(key, doc.ToRedisValue(), expiration);
                 logger.LogDebug("SET {key} {value}.", key, doc);
             });
         }
@@ -44,16 +67,37 @@ namespace RedisConnectionSamples
         /// Best practice is for all locations used wihin a "schemaId" to follow the same pattern.
         /// </summary>
         /// <param name="schemaId">The id representing the schema where the document will be stored.</param>
-        /// <param name="pairs">An array of location -> document pairs to be stored within the schema.</param>
-        /// <param name="expiration">The TTL for the key -> document pairs. Defaults to null, indicating that there will not be a TTL.</param>
+        /// <param name="pairs">An array of location -> document pairs to be stored within the schema.</param>        
         /// <returns>A Task to track the asynchronous operation.</returns>
-        public async Task Put(string schemaId, KeyValuePair<Location, DataDocument>[] pairs, TimeSpan? expiration = null)
+        public async Task Put(string schemaId, KeyValuePair<Location, DataDocument>[] pairs)
         {
             var keys = pairs.Select(pair => new RedisKey(schemaId + ":" + pair.Key.ToString())).ToArray();
             await RetryHelper.RetryOnExceptionAsync(3, async () =>
             {
                 var db = RedisConnection.Connection.GetDatabase();                
                 await db.StringSetAsync(pairs.Select(pair => new KeyValuePair<RedisKey, RedisValue>(schemaId + ":" + pair.Key.ToString(), pair.Value.ToRedisValue())).ToArray());
+                logger.LogDebug("MSET {pairs}", pairs);
+            });
+        }
+
+        /// <summary>
+        /// This method saves multiple DataDocuments to Redis at their corresponding <c>Location</c> within a particular schema. The Redis Key where the document[i]
+        /// is saved is determined as <code>schemaId:location[i]</code>. All writes are "last write wins" when multiple writes to the same key are made at the same time.
+        /// 
+        /// This is a blocking implementaiton, for non-blocking callers use "Put".
+        /// 
+        /// Best practice is for all locations used wihin a "schemaId" to follow the same pattern.
+        /// </summary>
+        /// <param name="schemaId">The id representing the schema where the document will be stored.</param>
+        /// <param name="pairs">An array of location -> document pairs to be stored within the schema.</param>        
+        /// <returns>A Task to track the asynchronous operation.</returns>
+        public void PutSync(string schemaId, KeyValuePair<Location, DataDocument>[] pairs)
+        {
+            var keys = pairs.Select(pair => new RedisKey(schemaId + ":" + pair.Key.ToString())).ToArray();
+            RetryHelper.RetryOnException(3, () =>
+            {
+                var db = RedisConnection.Connection.GetDatabase();
+                db.StringSet(pairs.Select(pair => new KeyValuePair<RedisKey, RedisValue>(schemaId + ":" + pair.Key.ToString(), pair.Value.ToRedisValue())).ToArray());
                 logger.LogDebug("MSET {pairs}", pairs);
             });
         }
@@ -73,6 +117,27 @@ namespace RedisConnectionSamples
                 var db = RedisConnection.Connection.GetDatabase();
                 logger.LogDebug("GET {key}", key);
                 response = new DataDocument(await db.StringGetAsync(key));                
+            });
+            return response;
+        }
+
+        /// <summary>
+        /// This method retrieves a document from Redis.
+        /// 
+        /// This is a blocking implementation, for non-blocking use Get.
+        /// </summary>
+        /// <param name="schemaId">The id representing the schema where the document is stored.</param>
+        /// <param name="location">The location within the schema where the document is stored.</param>
+        /// <returns>A Task to track the asynchronous retrieval operation.</returns>
+        public DataDocument GetSync(string schemaId, Location location)
+        {
+            var key = schemaId + ":" + location.ToString();
+            DataDocument response = null;
+            RetryHelper.RetryOnException(3, () =>
+            {
+                var db = RedisConnection.Connection.GetDatabase();
+                logger.LogDebug("GET {key}", key);
+                response = new DataDocument(db.StringGet(key));
             });
             return response;
         }

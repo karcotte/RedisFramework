@@ -54,6 +54,45 @@ namespace RedisConnectionSamples
             } while (true);
         }
 
+        /// <summary>
+        /// This method retries an operation until it is successful or until the number of attempts is exceeded. 
+        /// This implementation only retries for certain exceptions. When the underlying operation throws a 
+        /// <c>RedisException</c>, or <c>SocketException</c> the operation will be tried again. Any other error 
+        /// will be rethrown without additional attempts. This is a synchronous / blocking implementation, for non-blocking
+        /// calls use RetryOnExceptionAsync.
+        /// </summary>
+        /// <param name="times">The number of attempts allowed.</param>
+        /// <param name="operation">The operation to retry.</param>
+        /// <returns></returns>
+        public static void RetryOnException(int times, Action operation)
+        {
+            if (times <= 0)
+                throw new ArgumentOutOfRangeException(nameof(times));
+            var attempts = 0;
+            do
+            {
+                try
+                {
+                    attempts++;
+                    operation();
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    if (ex is RedisException || ex is SocketException)
+                    {
+                        if (attempts == times)
+                            throw;
+                        CreateDelayForException(times, attempts, ex).Wait();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            } while (true);
+        }
+
         private static Task CreateDelayForException(
             int times, int attempts, Exception ex)
         {

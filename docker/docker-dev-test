@@ -1,0 +1,8 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as builder
+
+COPY . /RedisFramework
+COPY ./docker/setup.sh /
+COPY ./docker/wait-for-it.sh /
+
+WORKDIR /RedisFramework
+RUN dotnet build

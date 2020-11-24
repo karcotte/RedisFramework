@@ -4,6 +4,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RedisTests
@@ -15,7 +16,9 @@ namespace RedisTests
 
         public RedisTest()
         {
-            Environment.SetEnvironmentVariable("connection_string", "127.0.0.1:12000,connectRetry=3,connectTimeout=3000,abortConnect=false");
+            //Must set an environment variable for the "connection_string" we take care of this in docker compose.
+            //Environment.SetEnvironmentVariable("connection_string", "redis:12000,connectRetry=3,connectTimeout=3000,abortConnect=false");
+            ThreadPool.SetMinThreads(200, 200);
             redis = new RedisPersistenceLayer();
 
             ConfigurationOptions redisConfig = ConfigurationOptions.Parse(Environment.GetEnvironmentVariable("connection_string"), true);
@@ -33,9 +36,9 @@ namespace RedisTests
 
         [Test]
         public async Task TestDocumentPut()
-        {
+        {            
             DataDocument doc = new DataDocument();
-            doc.Set("field1", "value1");
+            doc.Set("field1", "value1");            
             await redis.Put("unit-test", "1", doc, TimeSpan.FromSeconds(600));
             Assert.AreEqual(doc.GetFirstValueAsString("field1"), (await redis.Get("unit-test", "1")).GetFirstValueAsString("field1"));
         }
@@ -120,6 +123,15 @@ namespace RedisTests
             Assert.IsTrue(await redis.releaseLock("lock-test", "abc"), "5: expected lock to be released");
             Assert.IsTrue(await redis.acquireLock("lock-test", "abc", TimeSpan.FromMinutes(10)), "6: expected lock to be acquired.");
             Assert.IsTrue(await redis.releaseLock("lock-test", "abc"), "7: expected lock to be released.");
+        }
+
+        [Test]
+        public void TestSyncPut()
+        {
+            DataDocument doc = new DataDocument();
+            doc.Set("field1", "value1");
+            redis.PutSync("unit-test", "1", doc, TimeSpan.FromSeconds(600));
+            Assert.AreEqual(doc.GetFirstValueAsString("field1"), (redis.GetSync("unit-test", "1")).GetFirstValueAsString("field1"));
         }
     }
 }

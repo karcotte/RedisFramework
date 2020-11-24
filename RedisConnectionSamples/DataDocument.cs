@@ -45,6 +45,11 @@ namespace RedisConnectionSamples
             this.dataMap = JsonSerializer.Deserialize<Dictionary<string, object>>(new ReadOnlySpan<byte>(jsonValue));
         }
 
+        internal DataDocument(HashEntry[] entries)
+        {
+            this.dataMap = new Dictionary<string, object>(entries.Select(entry => new KeyValuePair<string, object>(entry.Name, JsonSerializer.Deserialize<object>(new ReadOnlySpan<byte>(entry.Value)))));
+        }
+
         /// <summary>
         /// This method saves the (<paramref name="value"/>) to the (<paramref name="field"/>) field in the DataDocument. 
         /// If a value or values already exists in the DataDocument at that field, the new value replaces the old value(s)
@@ -78,7 +83,8 @@ namespace RedisConnectionSamples
                 }
             } else
             {
-                List<object> values = new List<object>();                
+                List<object> values = new List<object>();
+                values.Add(value);
                 dataMap[field] = values;
             }
         }
@@ -109,6 +115,7 @@ namespace RedisConnectionSamples
             {
                 List<object> values = new List<object>();
                 values.AddRange(value);
+                dataMap[field] = values;
             }
         }
 
@@ -205,6 +212,11 @@ namespace RedisConnectionSamples
         internal RedisValue ToRedisValue()
         {
             return JsonSerializer.SerializeToUtf8Bytes<Dictionary<string, object>>(dataMap);
+        }
+
+        internal HashEntry[] ToHashEntries()
+        {            
+            return dataMap.Select(kv => new HashEntry(kv.Key, JsonSerializer.SerializeToUtf8Bytes<object>(kv.Value))).ToArray();
         }
     }    
 }
